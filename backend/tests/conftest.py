@@ -1,14 +1,23 @@
 import os
 
 os.environ["JWT_SECRET"] = "test-secret"
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+os.environ["GRAPH_WRITES_PER_MIN"] = "1000"
+os.environ["CHUNK_CHARS"] = "60"
+# Opt in to Postgres with TEST_DATABASE_URL. The fixtures drop every table,
+# so only a database whose name contains "scratch" is accepted.
+_url = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
+assert _url.startswith("sqlite") or "scratch" in _url.rsplit("/", 1)[-1], _url
+os.environ["DATABASE_URL"] = _url
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 from app import db as app_db  # noqa: E402
 from app.main import app  # noqa: E402
+from app.graph.llm import get_llm  # noqa: E402
 from app.models import Company, User  # noqa: E402
+from app.routers import graph as graph_router  # noqa: E402
+from tests.fakes import FakeLLM  # noqa: E402
 from app.security import hash_password  # noqa: E402
 
 PW = "password123"
@@ -38,7 +47,12 @@ def client():
                 )
             )
         s.commit()
-    return TestClient(app)
+    graph_router._hits.clear()
+    fake = FakeLLM()
+    app.dependency_overrides[get_llm] = lambda: fake
+    c = TestClient(app)
+    c.llm = fake
+    return c
 
 
 def login(client, email):

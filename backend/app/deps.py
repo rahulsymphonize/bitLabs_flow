@@ -58,3 +58,24 @@ def scoped(query, user: User, column=User.company_id):
     if user.role == SYS_ADMIN:
         return query
     return query.where(column == user.company_id)
+
+
+def graph_scope(user: User, company_id: int | None, db, write=False) -> int:
+    """The one company a graph request may touch."""
+    from app.models import Company
+
+    if user.role == SYS_ADMIN:
+        if company_id is None:
+            raise HTTPException(422, "company_id is required")
+        company = db.get(Company, company_id)
+        if not company:
+            raise HTTPException(404, "Not found")
+    else:
+        if company_id is not None and company_id != user.company_id:
+            raise forbidden()
+        company = user.company
+    if write and not company.active:
+        raise HTTPException(
+            409, "This company is inactive. Restore it before adding sources."
+        )
+    return company.id

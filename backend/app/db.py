@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app import config
@@ -9,6 +9,14 @@ engine = create_engine(
     if config.DATABASE_URL.startswith("sqlite")
     else {},
 )
+if config.DATABASE_URL.startswith("sqlite"):
+
+    @event.listens_for(engine, "connect")
+    def _fk_on(conn, _):
+        # sqlite ignores foreign keys and cascades unless asked.
+        conn.execute("PRAGMA foreign_keys=ON")
+
+
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
