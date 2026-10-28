@@ -1,0 +1,76 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  color: #1f2937;
+}
+nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px;
+  background: #111827;
+  color: #fff;
+}
+nav button {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #374151;
+}
+nav button.active {
+  background: #374151;
+}
+.spacer {
+  flex: 1;
+}
+main {
+  padding: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.login {
+  max-width: 320px;
+  margin: 15vh auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+input,
+select,
+button {
+  padding: 6px 10px;
+  font: inherit;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+th,
+td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+tr.muted {
+  color: #9ca3af;
+}
+.error {
+  color: #b91c1c;
+}
+.notice {
+  color: #047857;
+}
+.login a {
+  font-size: 14px;
+}
